@@ -8,10 +8,11 @@ import matplotlib.pyplot as plt
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-TrainLabelPath = 'train-labels-idx1-ubyte.gz'
-TrainImagePath = 'train-images-idx3-ubyte.gz'
-TestLabelPath = 't10k-labels-idx1-ubyte.gz'
-TestImagePath = 't10k-images-idx3-ubyte.gz'
+TrainLabelFileName = 'train-labels-idx1-ubyte.gz'
+TrainImageFileName = 'train-images-idx3-ubyte.gz'
+TestLabelFileName = 't10k-labels-idx1-ubyte.gz'
+TestImageFileName = 't10k-images-idx3-ubyte.gz'
+AddedPath = '../Dataset/'
 
 # Get Training data from input data set
 # label_url = input label file path
@@ -30,8 +31,8 @@ def ReadData(label_url, image_url):
     return (label, image)
 
 # Read training data
-Train_lbl, Train_img = ReadData(TrainLabelPath, TTrainImagePath)
-Validation_lbl, Validation_img = ReadData(TestLabelPath, TestImagePath)
+Train_lbl, Train_img = ReadData(AddedPath + TrainLabelFileName, AddedPath + TrainImageFileName)
+Validation_lbl, Validation_img = ReadData(AddedPath + TestLabelFileName, AddedPath + TestImageFileName)
 
 BatchSize = 32
 
@@ -45,6 +46,35 @@ for i in range(10):
     plt.imshow(Train_img[i].reshape(28, 28), cmap='Greys_r')
     plt.axis('off')
 
-plt.show()
 print('label: %s' % (Train_lbl[0:10],))
+plt.show()
+
+print('\nThe trainer begins to work')
+
+# define Network
+data = mx.symbol.Variable('data')
+
+# Turn image into 1-D array data(Flatten)
+flatten = mx.sym.Flatten(data=data, Name="flatten")
+
+# 128 neurons fully connected, ReLU
+fc1 = mx.sym.FullyConnected(data = flatten, num_hidden=128, Name="fc1")
+act1 = mx.sym.Activation(fc1, "relu", "act1")
+
+# 64 neurons fully connected, ReLU
+fc2 = mx.sym.FullyConnected(act1, num_hidden=64, name = "fc2")
+act2 = mx.sym.Activation(fc2, "relu", "act2")
+
+# Output layer, fully connected, 10 neurons since 10 categories to classify
+fc3 = mx.sym.FullyConnected(act2, num_hidden=10, name="fc3")
+# Do SoftMax to get 
+net = mx.sym.SoftmaxOutput(fc3, name = "softmax")
+
+# Using MX module to show network structure
+shape = {"data": (BatchSize, 1, 28, 28)}
+mx.visualization.print_summary(net, shape)
+
+mx.visualization.plot_network(symbol=net, shape=shape).view()
+
+
 
