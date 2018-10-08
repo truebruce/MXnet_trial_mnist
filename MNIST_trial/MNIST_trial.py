@@ -37,7 +37,7 @@ Validation_lbl, Validation_img = ReadData(AddedPath + TestLabelFileName, AddedPa
 BatchSize = 32
 
 # define Training iteritor
-train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize, True)
+train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize)
 val_iter = mx.io.NDArrayIter(Validation_img, Validation_lbl, BatchSize)
 
 # test: show up images
@@ -51,30 +51,48 @@ plt.show()
 
 print('\nThe trainer begins to work')
 
+
+#try:
 # define Network
 data = mx.symbol.Variable('data')
-
+   
 # Turn image into 1-D array data(Flatten)
 flatten = mx.sym.Flatten(data=data, Name="flatten")
-
+    
 # 128 neurons fully connected, ReLU
-fc1 = mx.sym.FullyConnected(data = flatten, num_hidden=128, Name="fc1")
+#fc11 = mx.sym.FullyConnected(data = flatten, num_hidden=64, name="fc11")
+#act11 = mx.sym.Activation(fc1, "relu", "act11")
+fc1 = mx.sym.FullyConnected(data = flatten, num_hidden=128, name="fc1")
 act1 = mx.sym.Activation(fc1, "relu", "act1")
-
+    
 # 64 neurons fully connected, ReLU
 fc2 = mx.sym.FullyConnected(act1, num_hidden=64, name = "fc2")
 act2 = mx.sym.Activation(fc2, "relu", "act2")
-
+    
 # Output layer, fully connected, 10 neurons since 10 categories to classify
 fc3 = mx.sym.FullyConnected(act2, num_hidden=10, name="fc3")
 # Do SoftMax to get 
 net = mx.sym.SoftmaxOutput(fc3, name = "softmax")
-
+    
 # Using MX module to show network structure
 shape = {"data": (BatchSize, 1, 28, 28)}
 mx.visualization.print_summary(net, shape)
-
+    
 mx.visualization.plot_network(symbol=net, shape=shape).view()
+
+# start training
+module = mx.mod.Module(symbol=net)
+module.fit(train_iter, 
+           eval_data=val_iter,
+           optimizer='sgd',
+           optimizer_params= {'learning_rate':0.2, 'lr_scheduler': mx.lr_scheduler.FactorScheduler(step=60000/BatchSize, factor=0.9)},
+           num_epoch=20,
+           batch_end_callback=mx.callback.Speedometer(BatchSize, 60000/BatchSize)
+)
+
+
+#except Exception:
+#    print(Exception.next())
 
 
 
