@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /F_mnist
+/MNIST_trial/FC_mnist_test1
+/MNIST_trial/plot.gv.pdf

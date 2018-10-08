@@ -13,6 +13,8 @@ TrainImageFileName = 'train-images-idx3-ubyte.gz'
 TestLabelFileName = 't10k-labels-idx1-ubyte.gz'
 TestImageFileName = 't10k-images-idx3-ubyte.gz'
 AddedPath = '../Dataset/'
+#AddedPath = '../F_mnist/Dataset/'
+
 
 # Get Training data from input data set
 # label_url = input label file path
@@ -30,6 +32,12 @@ def ReadData(label_url, image_url):
 
     return (label, image)
 
+# Generate a FullyConnected network layer
+def GenerateFCLayers(data, num_hidden, act_Func, layer_name):
+    fc = mx.sym.FullyConnected(data=data, num_hidden=num_hidden, name=layer_name)
+    act = mx.sym.Activation(data=fc, act_type=act_Func, name=layer_name + '_act')
+    return act
+
 # Read training data
 Train_lbl, Train_img = ReadData(AddedPath + TrainLabelFileName, AddedPath + TrainImageFileName)
 Validation_lbl, Validation_img = ReadData(AddedPath + TestLabelFileName, AddedPath + TestImageFileName)
@@ -37,7 +45,7 @@ Validation_lbl, Validation_img = ReadData(AddedPath + TestLabelFileName, AddedPa
 BatchSize = 32
 
 # define Training iteritor
-train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize)
+train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize, shuffle=False)
 val_iter = mx.io.NDArrayIter(Validation_img, Validation_lbl, BatchSize)
 
 # test: show up images
@@ -57,22 +65,21 @@ print('\nThe trainer begins to work')
 data = mx.symbol.Variable('data')
    
 # Turn image into 1-D array data(Flatten)
-flatten = mx.sym.Flatten(data=data, Name="flatten")
+net = mx.sym.Flatten(data=data, Name="flatten")
     
-# 128 neurons fully connected, ReLU
-#fc11 = mx.sym.FullyConnected(data = flatten, num_hidden=64, name="fc11")
-#act11 = mx.sym.Activation(fc1, "relu", "act11")
-fc1 = mx.sym.FullyConnected(data = flatten, num_hidden=128, name="fc1")
-act1 = mx.sym.Activation(fc1, "relu", "act1")
+# 96 neurons fully connected, ReLU
+net = GenerateFCLayers(net, 96, 'relu', 'FC_1')
     
-# 64 neurons fully connected, ReLU
-fc2 = mx.sym.FullyConnected(act1, num_hidden=64, name = "fc2")
-act2 = mx.sym.Activation(fc2, "relu", "act2")
+# 96 neurons fully connected, ReLU
+net = GenerateFCLayers(net, 96, 'relu', 'FC_2')
+
+# 32 neurons fully connected, ReLU
+net = GenerateFCLayers(net, 32, 'relu', 'FC_3')
     
 # Output layer, fully connected, 10 neurons since 10 categories to classify
-fc3 = mx.sym.FullyConnected(act2, num_hidden=10, name="fc3")
+net = mx.sym.FullyConnected(net, num_hidden=10, name="fc_out")
 # Do SoftMax to get 
-net = mx.sym.SoftmaxOutput(fc3, name = "softmax")
+net = mx.sym.SoftmaxOutput(net, name = "softmax")
     
 # Using MX module to show network structure
 shape = {"data": (BatchSize, 1, 28, 28)}
@@ -89,6 +96,8 @@ module.fit(train_iter,
            num_epoch=20,
            batch_end_callback=mx.callback.Speedometer(BatchSize, 60000/BatchSize)
 )
+
+module.save_params('FC_mnist_test1')
 
 
 #except Exception:
