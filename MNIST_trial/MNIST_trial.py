@@ -5,6 +5,7 @@ import struct
 import logging
 import mxnet as mx
 import matplotlib.pyplot as plt
+import random
 
 logging.getLogger().setLevel(logging.DEBUG)
 
@@ -49,12 +50,15 @@ train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize, shuffle=False)
 val_iter = mx.io.NDArrayIter(Validation_img, Validation_lbl, BatchSize)
 
 # test: show up images
+show_lebel = list()
 for i in range(10):
+    r = random.randrange(0, 60000)
+    show_lebel.append(Train_lbl[r])
     plt.subplot(1,10,i+1)
-    plt.imshow(Train_img[i].reshape(28, 28), cmap='Greys_r')
+    plt.imshow(Train_img[r].reshape(28, 28), cmap='Greys_r')
     plt.axis('off')
 
-print('label: %s' % (Train_lbl[0:10],))
+print('label: %s' % (show_lebel[0:10],))
 plt.show()
 
 print('\nThe trainer begins to work')
@@ -88,17 +92,33 @@ mx.visualization.print_summary(net, shape)
 mx.visualization.plot_network(symbol=net, shape=shape).view()
 
 # start training
+EpochNum = 20
 module = mx.mod.Module(symbol=net)
 module.fit(train_iter, 
            eval_data=val_iter,
            optimizer='sgd',
            optimizer_params= {'learning_rate':0.2, 'lr_scheduler': mx.lr_scheduler.FactorScheduler(step=60000/BatchSize, factor=0.9)},
-           num_epoch=20,
-           batch_end_callback=mx.callback.Speedometer(BatchSize, 60000/BatchSize)
+           num_epoch=EpochNum,
+           batch_end_callback=mx.callback.Speedometer(BatchSize, 60000/BatchSize), 
 )
 
-module.save_params('FC_mnist_test1')
+# save network parameters as Checkpoint
+module.save_checkpoint("mnist_testrun", EpochNum)
 
+# Load checkpoint for prediction
+prediction = mx.model.FeedForward.load("mnist_testrun", EpochNum)
+
+t = random.randrange(0, 10000)
+Opt = prediction.predict(Validation_img[t])
+m = o = 0
+for i in range(10):
+    if Opt[0][i] > m:
+        m = Opt[0][i]
+        o = i
+print('Predicted as category: ', o)
+plt.imshow(Validation_img[t].reshape(28, 28), cmap='Greys_r')
+plt.axis('off')
+plt.show()
 
 #except Exception:
 #    print(Exception.next())

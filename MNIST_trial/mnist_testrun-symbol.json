@@ -1,0 +1,140 @@
+{
+  "nodes": [
+    {
+      "op": "null", 
+      "name": "data", 
+      "inputs": []
+    }, 
+    {
+      "op": "Flatten", 
+      "name": "flatten0", 
+      "attrs": {"Name": "flatten"}, 
+      "inputs": [[0, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "FC_1_weight", 
+      "attrs": {"num_hidden": "96"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "FC_1_bias", 
+      "attrs": {"num_hidden": "96"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "FullyConnected", 
+      "name": "FC_1", 
+      "attrs": {"num_hidden": "96"}, 
+      "inputs": [[1, 0, 0], [2, 0, 0], [3, 0, 0]]
+    }, 
+    {
+      "op": "Activation", 
+      "name": "FC_1_act", 
+      "attrs": {"act_type": "relu"}, 
+      "inputs": [[4, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "FC_2_weight", 
+      "attrs": {"num_hidden": "96"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "FC_2_bias", 
+      "attrs": {"num_hidden": "96"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "FullyConnected", 
+      "name": "FC_2", 
+      "attrs": {"num_hidden": "96"}, 
+      "inputs": [[5, 0, 0], [6, 0, 0], [7, 0, 0]]
+    }, 
+    {
+      "op": "Activation", 
+      "name": "FC_2_act", 
+      "attrs": {"act_type": "relu"}, 
+      "inputs": [[8, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "FC_3_weight", 
+      "attrs": {"num_hidden": "32"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "FC_3_bias", 
+      "attrs": {"num_hidden": "32"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "FullyConnected", 
+      "name": "FC_3", 
+      "attrs": {"num_hidden": "32"}, 
+      "inputs": [[9, 0, 0], [10, 0, 0], [11, 0, 0]]
+    }, 
+    {
+      "op": "Activation", 
+      "name": "FC_3_act", 
+      "attrs": {"act_type": "relu"}, 
+      "inputs": [[12, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "fc_out_weight", 
+      "attrs": {"num_hidden": "10"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "fc_out_bias", 
+      "attrs": {"num_hidden": "10"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "FullyConnected", 
+      "name": "fc_out", 
+      "attrs": {"num_hidden": "10"}, 
+      "inputs": [[13, 0, 0], [14, 0, 0], [15, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "softmax_label", 
+      "inputs": []
+    }, 
+    {
+      "op": "SoftmaxOutput", 
+      "name": "softmax", 
+      "inputs": [[16, 0, 0], [17, 0, 0]]
+    }
+  ], 
+  "arg_nodes": [0, 2, 3, 6, 7, 10, 11, 14, 15, 17], 
+  "node_row_ptr": [
+    0, 
+    1, 
+    2, 
+    3, 
+    4, 
+    5, 
+    6, 
+    7, 
+    8, 
+    9, 
+    10, 
+    11, 
+    12, 
+    13, 
+    14, 
+    15, 
+    16, 
+    17, 
+    18, 
+    19
+  ], 
+  "heads": [[18, 0, 0]], 
+  "attrs": {"mxnet_version": ["int", 10300]}
+}
