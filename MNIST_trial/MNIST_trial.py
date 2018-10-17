@@ -46,7 +46,7 @@ Validation_lbl, Validation_img = ReadData(AddedPath + TestLabelFileName, AddedPa
 BatchSize = 32
 
 # define Training iteritor
-train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize, shuffle=False)
+train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize, shuffle=True)
 val_iter = mx.io.NDArrayIter(Validation_img, Validation_lbl, BatchSize)
 
 # test: show up images
@@ -86,14 +86,14 @@ net = mx.sym.FullyConnected(net, num_hidden=10, name="fc_out")
 net = mx.sym.SoftmaxOutput(net, name = "softmax")
     
 # Using MX module to show network structure
-shape = {"data": (BatchSize, 1, 28, 28)}
-mx.visualization.print_summary(net, shape)
-    
-mx.visualization.plot_network(symbol=net, shape=shape).view()
+#shape = {"data": (BatchSize, 1, 28, 28)}
+#mx.visualization.print_summary(net, shape)
+#    
+#mx.visualization.plot_network(symbol=net, shape=shape).view()
 
 # start training
 EpochNum = 20
-module = mx.mod.Module(symbol=net)
+module = mx.mod.Module(symbol=net, context=mx.gpu(0))
 module.fit(train_iter, 
            eval_data=val_iter,
            optimizer='sgd',
