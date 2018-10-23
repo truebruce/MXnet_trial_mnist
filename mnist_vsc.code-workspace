@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "MNIST_trial"
+		}
+	],
+	"settings": {
+		"python.pythonPath": "D:\\ProgramData\\Anaconda3\\python.exe"
+	}
+}

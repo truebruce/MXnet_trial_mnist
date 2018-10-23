@@ -13,7 +13,7 @@ TrainLabelFileName = 'train-labels-idx1-ubyte.gz'
 TrainImageFileName = 'train-images-idx3-ubyte.gz'
 TestLabelFileName = 't10k-labels-idx1-ubyte.gz'
 TestImageFileName = 't10k-images-idx3-ubyte.gz'
-AddedPath = '../Dataset/'
+#AddedPath = '../Dataset/'
 #AddedPath = '../F_mnist/Dataset/'
 
 
@@ -39,21 +39,14 @@ def GenerateFCLayers(data, num_hidden, act_Func, layer_name):
     act = mx.sym.Activation(data=fc, act_type=act_Func, name=layer_name + '_act')
     return act
 
-# Generate a FullyConnected network layer
-def GenerateConvolutionalLayers(data, kernel_conv, num_hidden_conv, act_Func, layer_name):
-    conv = mx.sym.Convolution(data=data, name=layer_name, kernel=kernel_conv, num_filter=num_hidden_conv)
-    bn = mx.sym.BatchNorm(data=conv, name=layer_name+'_bn', fix_gamma=False)
-    act = mx.sym.Activation(data=bn, name=layer_name+'_act', act_type=act_Func)
-    return act
-
 # Read training data
-Train_lbl, Train_img = ReadData(AddedPath + TrainLabelFileName, AddedPath + TrainImageFileName)
-Validation_lbl, Validation_img = ReadData(AddedPath + TestLabelFileName, AddedPath + TestImageFileName)
+Train_lbl, Train_img = ReadData(TrainLabelFileName, TrainImageFileName)
+Validation_lbl, Validation_img = ReadData(TestLabelFileName, TestImageFileName)
 
 BatchSize = 32
 
 # define Training iteritor
-train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize, shuffle=True)
+train_iter = mx.io.NDArrayIter(Train_img, Train_lbl, BatchSize, shuffle=False)
 val_iter = mx.io.NDArrayIter(Validation_img, Validation_lbl, BatchSize)
 
 # test: show up images
@@ -75,26 +68,20 @@ print('\nThe trainer begins to work')
 # define Network
 data = mx.symbol.Variable('data')
    
-## Turn image into 1-D array data(Flatten)
-#net = mx.sym.Flatten(data=data, Name="flatten")
+# Turn image into 1-D array data(Flatten)
+net = mx.sym.Flatten(data=data, Name="flatten")
     
-# 32 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
-net = GenerateConvolutionalLayers(data, (5,5), 32, 'relu', 'Conv_1')
-net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_1_pooling")
-
-# 64 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
-net = GenerateConvolutionalLayers(net, (5,5), 64, 'relu', 'Conv_2')
-net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_2_pooling")
-
-# 10 neurons of Conv. filter layer: 3*3/1 filter, 1*1 average global pooling
-net = mx.sym.Convolution(net, name="Conv_3", kernel=(3,3), num_filter=10)
-net = mx.sym.Pooling(net, name="Conv_3_pooling", global_pool=True, pool_type="avg", kernel=(1,1))
-
-# flat the data for full connected layer
-net = mx.sym.flatten(net, "flatten")
+# 96 neurons fully connected, ReLU
+net = GenerateFCLayers(net, 96, 'relu', 'FC_1')
     
-## Output layer, fully connected, 10 neurons since 10 categories to classify
-#net = mx.sym.FullyConnected(net, num_hidden=10, name="fc_out")
+# 96 neurons fully connected, ReLU
+net = GenerateFCLayers(net, 96, 'relu', 'FC_2')
+
+# 32 neurons fully connected, ReLU
+net = GenerateFCLayers(net, 32, 'relu', 'FC_3')
+    
+# Output layer, fully connected, 10 neurons since 10 categories to classify
+net = mx.sym.FullyConnected(net, num_hidden=10, name="fc_out")
 # Do SoftMax to get 
 net = mx.sym.SoftmaxOutput(net, name = "softmax")
     
@@ -106,7 +93,7 @@ mx.visualization.plot_network(symbol=net, shape=shape).view()
 
 # start training
 EpochNum = 20
-module = mx.mod.Module(symbol=net, context=mx.gpu(0))
+module = mx.mod.Module(symbol=net)
 module.fit(train_iter, 
            eval_data=val_iter,
            optimizer='sgd',
