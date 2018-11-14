@@ -100,9 +100,12 @@ net = mx.sym.SoftmaxOutput(net, name = "softmax")
     
 # Using MX module to show network structure
 shape = {"data": (BatchSize, 1, 28, 28)}
-mx.visualization.print_summary(net, shape)
-    
-mx.visualization.plot_network(symbol=net, shape=shape).view()
+try:
+    mx.visualization.print_summary(net, shape)
+    mx.visualization.plot_network(symbol=net, shape=shape).view()
+except Exception as e:
+    print(e)
+
 
 # start training
 EpochNum = 20
@@ -122,7 +125,7 @@ module.save_checkpoint("mnist_testrun", EpochNum)
 prediction = mx.model.FeedForward.load("mnist_testrun", EpochNum)
 
 t = random.randrange(0, 10000)
-Opt = prediction.predict(Validation_img[t])
+Opt = prediction.predict(Validation_img[t].reshape(1,1,28,28))
 m = o = 0
 for i in range(10):
     if Opt[0][i] > m:
