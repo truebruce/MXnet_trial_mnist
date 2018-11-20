@@ -148,7 +148,7 @@
       "name": "Conv_1_pooling", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "pool_type": "max", 
+        "pool_type": "avg", 
         "stride": "(2, 2)"
       }, 
       "inputs": [[18, 0, 0]]
@@ -296,7 +296,7 @@
       "name": "Conv_2_pooling", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "pool_type": "max", 
+        "pool_type": "avg", 
         "stride": "(2, 2)"
       }, 
       "inputs": [[37, 0, 0]]
