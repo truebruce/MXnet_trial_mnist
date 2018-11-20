@@ -10,7 +10,7 @@
       "name": "Conv_1_weight", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "16"
+        "num_filter": "32"
       }, 
       "inputs": []
     }, 
@@ -19,7 +19,7 @@
       "name": "Conv_1_bias", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "16"
+        "num_filter": "32"
       }, 
       "inputs": []
     }, 
@@ -28,7 +28,7 @@
       "name": "Conv_1", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "16"
+        "num_filter": "32"
       }, 
       "inputs": [[0, 0, 0], [1, 0, 0], [2, 0, 0]]
     }, 
@@ -79,7 +79,7 @@
       "name": "Conv_1_2_weight", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "16"
+        "num_filter": "32"
       }, 
       "inputs": []
     }, 
@@ -88,7 +88,7 @@
       "name": "Conv_1_2_bias", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "16"
+        "num_filter": "32"
       }, 
       "inputs": []
     }, 
@@ -97,7 +97,7 @@
       "name": "Conv_1_2", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "16"
+        "num_filter": "32"
       }, 
       "inputs": [[9, 0, 0], [10, 0, 0], [11, 0, 0]]
     }, 
@@ -149,7 +149,7 @@
       "attrs": {
         "kernel": "(3, 3)", 
         "pool_type": "max", 
-        "stride": "(1, 1)"
+        "stride": "(2, 2)"
       }, 
       "inputs": [[18, 0, 0]]
     }, 
@@ -158,7 +158,7 @@
       "name": "Conv_2_weight", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "32"
+        "num_filter": "16"
       }, 
       "inputs": []
     }, 
@@ -167,7 +167,7 @@
       "name": "Conv_2_bias", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "32"
+        "num_filter": "16"
       }, 
       "inputs": []
     }, 
@@ -176,7 +176,7 @@
       "name": "Conv_2", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "32"
+        "num_filter": "16"
       }, 
       "inputs": [[19, 0, 0], [20, 0, 0], [21, 0, 0]]
     }, 
@@ -227,7 +227,7 @@
       "name": "Conv_2_2_weight", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "32"
+        "num_filter": "16"
       }, 
       "inputs": []
     }, 
@@ -236,7 +236,7 @@
       "name": "Conv_2_2_bias", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "32"
+        "num_filter": "16"
       }, 
       "inputs": []
     }, 
@@ -245,7 +245,7 @@
       "name": "Conv_2_2", 
       "attrs": {
         "kernel": "(3, 3)", 
-        "num_filter": "32"
+        "num_filter": "16"
       }, 
       "inputs": [[28, 0, 0], [29, 0, 0], [30, 0, 0]]
     }, 
