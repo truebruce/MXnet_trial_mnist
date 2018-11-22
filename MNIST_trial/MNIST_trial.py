@@ -40,8 +40,8 @@ def GenerateFCLayers(data, num_hidden, act_Func, layer_name):
     return act
 
 # Generate a FullyConnected network layer
-def GenerateConvolutionalLayers(data, kernel_conv, num_hidden_conv, act_Func, layer_name):
-    conv = mx.sym.Convolution(data=data, name=layer_name, kernel=kernel_conv, num_filter=num_hidden_conv)
+def GenerateConvolutionalLayers(data, kernel_conv, num_hidden_conv, act_Func, layer_name, stride_conv=[], pad_conv=[]):
+    conv = mx.sym.Convolution(data=data, name=layer_name, kernel=kernel_conv, num_filter=num_hidden_conv, stride=stride_conv, pad=pad_conv)
     bn = mx.sym.BatchNorm(data=conv, name=layer_name+'_bn', fix_gamma=False)
     act = mx.sym.Activation(data=bn, name=layer_name+'_act', act_type=act_Func)
     return act
@@ -79,22 +79,22 @@ data = mx.symbol.Variable('data')
 #net = mx.sym.Flatten(data=data, Name="flatten")
     
 # 32 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
-net = GenerateConvolutionalLayers(data, (5,5), 32, 'relu', 'Conv_1')
-net = GenerateConvolutionalLayers(net, (1,1), 32, 'relu', 'Conv_1_2')
-net = mx.sym.Pooling(net, (3,3), "max", stride=(1,1), name="Conv_1_pooling")
+net = GenerateConvolutionalLayers(data, (3,3), 16, 'relu', 'Conv_1', pad_conv=(1,1))
+#net = GenerateConvolutionalLayers(net, (1,1), 32, 'relu', 'Conv_1_2')
+net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_1_pooling")
 
 # 64 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
-net = GenerateConvolutionalLayers(net, (5,5), 64, 'relu', 'Conv_2')
-net = GenerateConvolutionalLayers(net, (1,1), 64, 'relu', 'Conv_2_2')
-net = mx.sym.Pooling(net, (3,3), "max", stride=(1,1), name="Conv_2_pooling")
+net = GenerateConvolutionalLayers(net, (3,3), 32, 'relu', 'Conv_2', pad_conv=(1,1))
+#net = GenerateConvolutionalLayers(net, (1,1), 64, 'relu', 'Conv_2_2')
+net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_2_pooling")
 
 # 64 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
-net = GenerateConvolutionalLayers(net, (3,3), 16, 'relu', 'Conv_3')
-net = GenerateConvolutionalLayers(net, (3,3), 16, 'relu', 'Conv_3_2')
+net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_3', pad_conv=(1,1))
+net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_3_2', pad_conv=(1,1))
 net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_3_pooling")
 
 # 10 neurons of Conv. filter layer: 3*3/1 filter, 1*1 average global pooling
-net = mx.sym.Convolution(net, name="Conv_4", kernel=(5,5), num_filter=10)
+net = mx.sym.Convolution(net, name="Conv_4", kernel=(2,2), num_filter=10)
 net = mx.sym.Pooling(net, name="Conv_4_pooling", global_pool=True, pool_type="avg", kernel=(1,1))
 
 # flat the data for full connected layer
@@ -115,7 +115,7 @@ except Exception as e:
 
 
 # start training
-EpochNum = 20
+EpochNum = 30
 module = mx.mod.Module(symbol=net, context=mx.gpu(0))
 module.fit(train_iter, 
            eval_data=val_iter,
