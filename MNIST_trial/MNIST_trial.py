@@ -81,21 +81,28 @@ data = mx.symbol.Variable('data')
 # 32 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
 net = GenerateConvolutionalLayers(data, (3,3), 16, 'relu', 'Conv_1', pad_conv=(1,1))
 #net = GenerateConvolutionalLayers(net, (1,1), 32, 'relu', 'Conv_1_2')
-net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_1_pooling")
+net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_1_pooling")
 
 # 64 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
 net = GenerateConvolutionalLayers(net, (3,3), 32, 'relu', 'Conv_2', pad_conv=(1,1))
-#net = GenerateConvolutionalLayers(net, (1,1), 64, 'relu', 'Conv_2_2')
-net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_2_pooling")
+# net = GenerateConvolutionalLayers(net, (1,1), 16, 'relu', 'Conv_2_2')
+# net = GenerateConvolutionalLayers(net, (3,3), 32, 'relu', 'Conv_2_3', pad_conv=(1,1))
+net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_2_pooling")
 
 # 64 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
 net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_3', pad_conv=(1,1))
-net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_3_2', pad_conv=(1,1))
-net = mx.sym.Pooling(net, (3,3), "max", stride=(2,2), name="Conv_3_pooling")
+net = GenerateConvolutionalLayers(net, (1,1), 32, 'relu', 'Conv_3_2')
+net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_3_3', pad_conv=(1,1))
+net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_3_pooling", pad=(1,1))
+
+net = GenerateConvolutionalLayers(net, (3,3), 128, 'relu', 'Conv_4', pad_conv=(1,1))
+net = GenerateConvolutionalLayers(net, (1,1), 64, 'relu', 'Conv_4_2')
+net = GenerateConvolutionalLayers(net, (3,3), 128, 'relu', 'Conv_4_3', pad_conv=(1,1))
+net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_4_pooling")
 
 # 10 neurons of Conv. filter layer: 3*3/1 filter, 1*1 average global pooling
-net = mx.sym.Convolution(net, name="Conv_4", kernel=(2,2), num_filter=10)
-net = mx.sym.Pooling(net, name="Conv_4_pooling", global_pool=True, pool_type="avg", kernel=(1,1))
+net = mx.sym.Convolution(net, name="Conv_5", kernel=(2,2), num_filter=10)
+net = mx.sym.Pooling(net, name="Conv_5_pooling", global_pool=True, pool_type="avg", kernel=(1,1))
 
 # flat the data for full connected layer
 net = mx.sym.flatten(net, "flatten")
