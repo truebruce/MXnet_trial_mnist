@@ -16,8 +16,8 @@ TrainLabelFileName = 'train-labels-idx1-ubyte.gz'
 TrainImageFileName = 'train-images-idx3-ubyte.gz'
 TestLabelFileName = 't10k-labels-idx1-ubyte.gz'
 TestImageFileName = 't10k-images-idx3-ubyte.gz'
-#AddedPath = '../Dataset/'
-AddedPath = '../F_mnist/Dataset/'
+AddedPath = '../Dataset/'
+#AddedPath = '../F_mnist/Dataset/'
 
 
 # Get Training data from input data set
@@ -83,16 +83,30 @@ data = mx.symbol.Variable('data')
    
 ## Turn image into 1-D array data(Flatten)
 #net = mx.sym.Flatten(data=data, Name="flatten")
+    
+# Inception V1 like structure
+# using 4 different size kernels and paths and merge
+# ip1 = 1*1 kernel
+ip1 = GenerateConvolutionalLayers(data, (1,1), 8, 'relu', 'Conv_1_a')
+#net = GenerateConvolutionalLayers(net, (3,3), 8, 'relu', 'Conv_1_2', pad_conv=(1,1))
 
-# Residual network structure
-# pre-precess layer
-#net = GenerateConvolutionalLayers(data, (3,3), 16, 'relu', 'Conv_Pre', pad_conv=(1,1))
+# ip2 = 1*1 and a 5*5 kernel with 2*2 padded
+ip2 = GenerateConvolutionalLayers(data, (1,1), 8, 'relu', 'Conv_1_b')
+ip2 = GenerateConvolutionalLayers(ip2, (5,5), 8, 'relu', 'Conv_1_b_2', pad_conv=(2,2))
 
-#identity = net    
-#net = GenerateConvolutionalLayers(data, (1,1), 8, 'relu', 'Conv_1_a')
-net = GenerateConvolutionalLayers(data, (3,3), 16, 'relu', 'Conv_1', pad_conv=(1,1))
-#net = net + identity
-net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_1_pooling")
+# ip3 = 1*1 and a 3*3 kernel with 1*1 padded
+ip3 = GenerateConvolutionalLayers(data, (1,1), 8, 'relu', 'Conv_1_c')
+ip3 = GenerateConvolutionalLayers(ip3, (3,3), 8, 'relu', 'Conv_1_c_2', pad_conv=(1,1))
+
+#ip4 = 3*3 max pooling and a 1*1 kernel bottleneck layer
+ip4 = mx.sym.Pooling(data, (3,3), "max", stride=(1,1), pad=(1,1), name='Conv_1_d')
+ip4 = GenerateConvolutionalLayers(ip4, (1,1), 8, 'relu', 'Conv_1_d_2')
+
+# Chennel concate - net = concat(ip1, ip2, ip3, ip4)
+net = mx.sym.concat(ip1, ip2, ip3, ip4)
+# and Pooling afterward
+net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name='Conv_1_concat_pooling')
+#net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_1_pooling")
 
 # 64 neurons of Conv. filter layer with BN layer: 5*5/1 filter, 3*3/2*2 max pooling
 #identity = net   
@@ -102,30 +116,30 @@ net = GenerateConvolutionalLayers(net, (3,3), 32, 'relu', 'Conv_2', pad_conv=(1,
 #net = net + identity
 net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_2_pooling")
 
-# Using residual layer
-net = GenerateConvolutionalLayers(net, (1,1), 64, 'relu', 'Conv_3_pre')
-identity = net
+## Using residual layer
+#net = GenerateConvolutionalLayers(net, (1,1), 64, 'relu', 'Conv_3_pre')
+#identity = net
 # 3rd Layer
 net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_3', pad_conv=(1,1))
 net = GenerateConvolutionalLayers(net, (1,1), 32, 'relu', 'Conv_3_2')
 net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_3_3', pad_conv=(1,1))
 #net = net + identity
-net = mx.sym.concat(net, identity)
+#net = mx.sym.concat(net, identity)
 
 #net = GenerateConvolutionalLayers(net, (3,3), 32, 'relu', 'Conv_3', pad_conv=(1,1))
 #net = GenerateConvolutionalLayers(net, (1,1), 32, 'relu', 'Conv_3_2')
 #net = GenerateConvolutionalLayers(net, (3,3), 32, 'relu', 'Conv_3_3', pad_conv=(1,1))
 net = mx.sym.Pooling(net, (2,2), "max", stride=(2,2), name="Conv_3_pooling", pad=(1,1))
 
-net = mx.sym.Convolution(net, kernel=(1,1), num_filter=64, name="Conv_4_pre")
+#net = mx.sym.Convolution(net, kernel=(1,1), num_filter=64, name="Conv_4_pre")
 # 4th Layer
-identity = net
-net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_4', pad_conv=(1,1))
-net = GenerateConvolutionalLayers(net, (1,1), 32, 'relu', 'Conv_4_2')
-net = GenerateConvolutionalLayers(net, (3,3), 64, 'relu', 'Conv_4_3', pad_conv=(1,1))
+#identity = net
+net = GenerateConvolutionalLayers(net, (3,3), 128, 'relu', 'Conv_4', pad_conv=(1,1))
+net = GenerateConvolutionalLayers(net, (1,1), 64, 'relu', 'Conv_4_2')
+net = GenerateConvolutionalLayers(net, (3,3), 128, 'relu', 'Conv_4_3', pad_conv=(1,1))
 #net = net + identity
-net = mx.sym.concat(net, identity)
-net = mx.sym.Pooling(net, (2,2), 'max', stride=(2,2), name="Conv_4_pooling")
+#net = mx.sym.concat(net, identity)
+net = mx.sym.Pooling(net, (2,2), 'max', stride=(2,2), name="Conv_pooling")
 
 #net = mx.sym.Pooling(net, (2,2), 'max', stride=(2,2), name="Conv_pooling")
 
@@ -164,7 +178,7 @@ except Exception as e:
 
 
 # start training
-EpochNum = 50
+EpochNum = 30
 module = mx.mod.Module(symbol=net, context=mx.gpu(0))
 module.fit(train_iter, 
            eval_data=val_iter,
